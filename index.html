@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Cartas</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; background-color: #f4f4f9; }
+        .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { color: #333; margin-top: 0; }
+        .campo { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #45a049; }
+        #mensaje { margin-top: 1rem; padding: 10px; display: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Generar Nueva Carta</h2>
+    <form id="formCarta">
+        <div class="campo">
+            <label>Nombre del Estudiante:</label>
+            <input type="text" id="estudiante" required>
+        </div>
+        <div class="campo">
+            <label>Nombre a quien se busca CITE:</label>
+            <input type="text" id="criterioCite" placeholder="Ej: Juan Perez" required>
+        </div>
+        <div class="campo">
+            <label>Destinatario (Nombre en carta):</label>
+            <input type="text" id="destinatario" required>
+        </div>
+        <div class="campo">
+            <label>Cargo:</label>
+            <input type="text" id="cargo" required>
+        </div>
+        <div class="campo">
+            <label>Empresa:</label>
+            <input type="text" id="empresa" required>
+        </div>
+
+        <div class="campo">
+            <label>Mención:</label>
+	    <select id="mencion">
+            	<option value="Comercio Internacional">Comercio Internacional</option>
+	   	<option value="e-Commerce">e-Commerce</option>
+	    </select>
+        </div>
+
+	<div class="campo">
+            <label>Tratamiento:</label>
+	    <select id="tratamiento">
+            <option value="Señor">Señor</option>
+	    <option value="Señora">Señora</option>
+	    </select>
+        </div>
+
+        <div class="campo">
+            <label>Fecha:</label>
+            <input type="date" id="fecha" required>
+        </div>
+
+        <button type="submit" id="btnEnviar">Generar Documento</button>
+    </form>
+    <div id="mensaje"></div>
+</div>
+
+<script>
+    // PEGA AQUÍ LA URL QUE TE DIO GOOGLE AL PUBLICAR (DEPLOY)
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxfHim74ZAQQZv6M0T6V8dWLToQ0WPydfby-v34i4BvMmLUMIK72qEbmhz5bMvZwVXb/exec";
+
+    document.getElementById('formCarta').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnEnviar');
+        const msg = document.getElementById('mensaje');
+        
+        btn.disabled = true;
+        btn.innerText = "Procesando...";
+        msg.style.display = "none";
+
+        const datos = {
+            estudiante: document.getElementById('estudiante').value,
+            criterioCite: document.getElementById('criterioCite').value,
+            destinatario: document.getElementById('destinatario').value,
+            cargo: document.getElementById('cargo').value,
+            empresa: document.getElementById('empresa').value,
+            mencion: document.getElementById('mencion').value,
+            fecha: document.getElementById('fecha').value,
+	    tratamiento: document.getElemntById('tratamiento').value
+        };
+
+        try {
+            // Usamos mode: 'no-cors' si hay problemas, pero lo ideal es manejar la respuesta
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Importante para evitar bloqueos de navegador con Apps Script
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+
+            // Nota: Con 'no-cors' no podemos leer la respuesta JSON directamente por seguridad,
+            // pero el script en Google se ejecutará igual.
+            msg.style.display = "block";
+            msg.style.backgroundColor = "#d4edda";
+            msg.innerText = "¡Solicitud enviada! Revisa tu carpeta de Google Drive en unos segundos.";
+            
+        } catch (error) {
+            msg.style.display = "block";
+            msg.style.backgroundColor = "#f8d7da";
+            msg.innerText = "Error al conectar con el servidor.";
+            console.error(error);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Generar Documento";
+        }
+    });
+</script>
+
+</body>
+</html>
