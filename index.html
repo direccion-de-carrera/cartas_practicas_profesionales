@@ -3,74 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Cartas</title>
+    <title>Generador Pro de Cartas</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; background-color: #f4f4f9; }
-        .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        h2 { color: #333; margin-top: 0; }
-        .campo { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #45a049; }
-        #mensaje { margin-top: 1rem; padding: 10px; display: none; border-radius: 4px; }
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #e0e4e8;
+            --paper: #ffffff;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            width: 95%;
+            max-width: 1200px;
+            margin: 20px;
+        }
+
+        /* Panel de Controles (Izquierda) */
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+
+        .campo { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #666; }
+        
+        input, select { 
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; 
+            box-sizing: border-box; transition: all 0.3s;
+        }
+
+        input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 5px rgba(52,152,219,0.3); }
+
+        button { 
+            width: 100%; padding: 15px; background-color: #27ae60; color: white; 
+            border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold;
+            transition: background 0.3s; margin-top: 10px;
+        }
+
+        button:hover { background-color: #219150; }
+        button:disabled { background-color: #bdc3c7; }
+
+        /* Vista Previa de la Carta (Derecha) */
+        .preview-container {
+            background: var(--paper);
+            padding: 50px 70px; /* Margenes tipo carta */
+            border-radius: 4px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            min-height: 800px;
+            position: relative;
+            line-height: 1.6;
+            color: #000;
+        }
+
+        .placeholder-text {
+            color: var(--accent);
+            border-bottom: 1px dashed var(--accent);
+            font-weight: 500;
+        }
+
+        .carta-header { text-align: right; margin-bottom: 40px; }
+        .carta-body { text-align: justify; }
+        .firma { margin-top: 50px; }
+
+        #mensaje {
+            position: fixed; top: 20px; right: 20px; padding: 15px 25px;
+            border-radius: 8px; color: white; display: none; z-index: 1000;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        /* Mobile responsive */
+        @media (max-width: 850px) {
+            .main-container { grid-template-columns: 1fr; }
+            .preview-container { padding: 30px; font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Generar Nueva Carta</h2>
-    <form id="formCarta">
-        <div class="campo">
-            <label>Nombre del Estudiante:</label>
-            <input type="text" id="estudiante" required>
-        </div>
-        <div class="campo">
-            <label>Nombre a quien se busca CITE:</label>
-            <input type="text" id="criterioCite" placeholder="Ej: Juan Perez" required>
-        </div>
-        <div class="campo">
-            <label>Destinatario (Nombre en carta):</label>
-            <input type="text" id="destinatario" required>
-        </div>
-        <div class="campo">
-            <label>Cargo:</label>
-            <input type="text" id="cargo" required>
-        </div>
-        <div class="campo">
-            <label>Empresa:</label>
-            <input type="text" id="empresa" required>
+<div id="mensaje"></div>
+
+<div class="main-container">
+    <div class="controls">
+        <h2>📋 Datos de la Carta</h2>
+        <form id="formCarta">
+            <div class="campo">
+                <label>Estudiante:</label>
+                <input type="text" id="estudiante" placeholder="Ej: Juan Pérez" oninput="updatePreview()" required>
+            </div>
+            <div class="campo">
+                <label>ID para CITE (Nombre en Excel):</label>
+                <input type="text" id="criterioCite" oninput="updatePreview()" required>
+            </div>
+            <div class="campo">
+                <label>Tratamiento:</label>
+                <select id="tratamiento" onchange="updatePreview()">
+                    <option value="Señor">Señor</option>
+                    <option value="Señora">Señora</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Destinatario:</label>
+                <input type="text" id="destinatario" oninput="updatePreview()" required>
+            </div>
+            <div class="campo">
+                <label>Cargo:</label>
+                <input type="text" id="cargo" oninput="updatePreview()" required>
+            </div>
+            <div class="campo">
+                <label>Empresa:</label>
+                <input type="text" id="empresa" oninput="updatePreview()" required>
+            </div>
+            <div class="campo">
+                <label>Mención:</label>
+                <select id="mencion" onchange="updatePreview()">
+                    <option value="Comercio Internacional">Comercio Internacional</option>
+                    <option value="e-Commerce">e-Commerce</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Fecha:</label>
+                <input type="date" id="fecha" oninput="updatePreview()" required>
+            </div>
+            <button type="submit" id="btnEnviar">🚀 Generar y Guardar</button>
+        </form>
+    </div>
+
+    <div class="preview-container" id="cartaVisual">
+        <div class="carta-header">
+            CITE: <span class="placeholder-text" id="view-cite">---</span><br>
+            Fecha: <span class="placeholder-text" id="view-fecha">__ de __________ de 202X</span>
         </div>
 
-        <div class="campo">
-            <label>Mención:</label>
-	    <select id="mencion">
-            	<option value="Comercio Internacional">Comercio Internacional</option>
-	   	<option value="e-Commerce">e-Commerce</option>
-	    </select>
+        <div class="carta-body">
+            <p>
+                <span id="view-tratamiento">Señor</span>:<br>
+                <strong id="view-destinatario">DESTINATARIO</strong><br>
+                <span id="view-cargo">CARGO</span><br>
+                <span id="view-empresa">EMPRESA PRESENTADA</span><br>
+                Presente.-
+            </p>
+
+            <p><strong>Ref: Aceptación de Prácticas Profesionales</strong></p>
+
+            <p>De mi mayor consideración:</p>
+
+            <p>
+                A través de la presente, tengo el agrado de dirigirme a su persona para informar que el estudiante 
+                <span class="placeholder-text" id="view-estudiante">NOMBRE DEL ESTUDIANTE</span> ha sido asignado para realizar 
+                sus actividades académicas bajo la mención de <span class="placeholder-text" id="view-mencion">MENCIÓN</span>.
+            </p>
+
+            <p>
+                Sin otro particular, y agradeciendo de antemano la atención prestada, me despido con las consideraciones más distinguidas.
+            </p>
         </div>
 
-	<div class="campo">
-            <label>Tratamiento:</label>
-	    <select id="tratamiento">
-            <option value="Señor">Señor</option>
-	    <option value="Señora">Señora</option>
-	    </select>
+        <div class="firma">
+            Atentamente,<br><br><br>
+            __________________________<br>
+            <strong>Firma Responsable</strong>
         </div>
-
-        <div class="campo">
-            <label>Fecha:</label>
-            <input type="date" id="fecha" required>
-        </div>
-
-        <button type="submit" id="btnEnviar">Generar Documento</button>
-    </form>
-    <div id="mensaje"></div>
+    </div>
 </div>
 
 <script>
-    // PEGA AQUÍ LA URL QUE TE DIO GOOGLE AL PUBLICAR (DEPLOY)
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxfHim74ZAQQZv6M0T6V8dWLToQ0WPydfby-v34i4BvMmLUMIK72qEbmhz5bMvZwVXb/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzwCdctsdgzcDUGivxDr1vXPHkjDtGeP_YUekNi7noPptbMbsYdFLI-ZLFh_BtXO71G/exec";
+
+    // Función para actualizar la vista previa en tiempo real
+    function updatePreview() {
+        document.getElementById('view-estudiante').innerText = document.getElementById('estudiante').value || "NOMBRE DEL ESTUDIANTE";
+        document.getElementById('view-destinatario').innerText = document.getElementById('destinatario').value.toUpperCase() || "DESTINATARIO";
+        document.getElementById('view-cargo').innerText = document.getElementById('cargo').value.toUpperCase() || "CARGO";
+        document.getElementById('view-empresa').innerText = document.getElementById('empresa').value.toUpperCase() || "EMPRESA";
+        document.getElementById('view-tratamiento').innerText = document.getElementById('tratamiento').value;
+        document.getElementById('view-mencion').innerText = document.getElementById('mencion').value;
+        
+        const fecha = document.getElementById('fecha').value;
+        if(fecha) {
+            const partes = fecha.split("-");
+            document.getElementById('view-fecha').innerText = `${partes[2]}-${partes[1]}-${partes[0]}`;
+        }
+    }
 
     document.getElementById('formCarta').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -78,8 +210,7 @@
         const msg = document.getElementById('mensaje');
         
         btn.disabled = true;
-        btn.innerText = "Procesando...";
-        msg.style.display = "none";
+        btn.innerText = "⏳ Generando documento...";
 
         const datos = {
             estudiante: document.getElementById('estudiante').value,
@@ -89,33 +220,34 @@
             empresa: document.getElementById('empresa').value,
             mencion: document.getElementById('mencion').value,
             fecha: document.getElementById('fecha').value,
-	    tratamiento: document.getElemntById('tratamiento').value
+            tratamiento: document.getElementById('tratamiento').value
         };
 
         try {
-            // Usamos mode: 'no-cors' si hay problemas, pero lo ideal es manejar la respuesta
-            const response = await fetch(WEB_APP_URL, {
+            fetch(WEB_APP_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Importante para evitar bloqueos de navegador con Apps Script
-                cache: 'no-cache',
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
             });
 
-            // Nota: Con 'no-cors' no podemos leer la respuesta JSON directamente por seguridad,
-            // pero el script en Google se ejecutará igual.
             msg.style.display = "block";
-            msg.style.backgroundColor = "#d4edda";
-            msg.innerText = "¡Solicitud enviada! Revisa tu carpeta de Google Drive en unos segundos.";
+            msg.style.backgroundColor = "#27ae60";
+            msg.innerText = "✅ ¡Éxito! Carta enviada a Google Drive.";
             
+            setTimeout(() => {
+                msg.style.display = "none";
+                btn.disabled = false;
+                btn.innerText = "🚀 Generar y Guardar";
+                document.getElementById('formCarta').reset();
+                updatePreview();
+            }, 3000);
+
         } catch (error) {
             msg.style.display = "block";
-            msg.style.backgroundColor = "#f8d7da";
-            msg.innerText = "Error al conectar con el servidor.";
-            console.error(error);
-        } finally {
+            msg.style.backgroundColor = "#e74c3c";
+            msg.innerText = "❌ Error de conexión.";
             btn.disabled = false;
-            btn.innerText = "Generar Documento";
         }
     });
 </script>
