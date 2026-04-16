@@ -3,99 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador Pro de Cartas</title>
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #3498db;
-            --bg: #e0e4e8;
-            --paper: #ffffff;
-        }
-
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: var(--bg);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            color: var(--primary);
-        }
-
-        .main-container {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-            width: 95%;
-            max-width: 1200px;
-            margin: 20px;
-        }
-
-        /* Panel de Controles (Izquierda) */
-        .controls {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            height: fit-content;
-        }
-
-        h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
-
-        .campo { margin-bottom: 15px; }
-        label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #666; }
-        
-        input, select { 
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; 
-            box-sizing: border-box; transition: all 0.3s;
-        }
-
-        input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 5px rgba(52,152,219,0.3); }
-
-        button { 
-            width: 100%; padding: 15px; background-color: #27ae60; color: white; 
-            border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold;
-            transition: background 0.3s; margin-top: 10px;
-        }
-
-        button:hover { background-color: #219150; }
-        button:disabled { background-color: #bdc3c7; }
-
-        /* Vista Previa de la Carta (Derecha) */
-        .preview-container {
-            background: var(--paper);
-            padding: 50px 70px; /* Margenes tipo carta */
-            border-radius: 4px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            min-height: 800px;
-            position: relative;
-            line-height: 1.6;
-            color: #000;
-        }
-
-        .placeholder-text {
-            color: var(--accent);
-            border-bottom: 1px dashed var(--accent);
-            font-weight: 500;
-        }
-
-        .carta-header { text-align: right; margin-bottom: 40px; }
-        .carta-body { text-align: justify; }
-        .firma { margin-top: 50px; }
-
-        #mensaje {
-            position: fixed; top: 20px; right: 20px; padding: 15px 25px;
-            border-radius: 8px; color: white; display: none; z-index: 1000;
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        /* Mobile responsive */
-        @media (max-width: 850px) {
-            .main-container { grid-template-columns: 1fr; }
-            .preview-container { padding: 30px; font-size: 0.9rem; }
-        }
-    </style>
+    <title>Generador de Cartas - Practica profesional - UNIFRANZ</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -103,35 +12,54 @@
 
 <div class="main-container">
     <div class="controls">
-        <h2>📋 Datos de la Carta</h2>
+        <h2>Datos de la Carta</h2>
         <form id="formCarta">
+
             <div class="campo">
-                <label>Estudiante:</label>
-                <input type="text" id="estudiante" placeholder="Ej: Juan Pérez" oninput="updatePreview()" required>
+                <label>Fecha inicio de pasantias:</label>
+                <input type="date" id="fecha" oninput="updatePreview()" required>
             </div>
+
             <div class="campo">
-                <label>ID para CITE (Nombre en Excel):</label>
-                <input type="text" id="criterioCite" oninput="updatePreview()" required>
-            </div>
-            <div class="campo">
-                <label>Tratamiento:</label>
+                <label>Tratamiento Destinatario:</label>
                 <select id="tratamiento" onchange="updatePreview()">
                     <option value="Señor">Señor</option>
                     <option value="Señora">Señora</option>
                 </select>
             </div>
+            
             <div class="campo">
                 <label>Destinatario:</label>
-                <input type="text" id="destinatario" oninput="updatePreview()" required>
+                <input type="text" id="destinatario" placeholder="Ej: Lic. Carlos Perez" oninput="updatePreview()" required>
             </div>
             <div class="campo">
                 <label>Cargo:</label>
-                <input type="text" id="cargo" oninput="updatePreview()" required>
+                <input type="text" id="cargo" placeholder="EJ: GERENTE GENERAL" oninput="updatePreview()" required>
             </div>
             <div class="campo">
                 <label>Empresa:</label>
-                <input type="text" id="empresa" oninput="updatePreview()" required>
+                <input type="text" id="empresa" placeholder="EJ: EMPRESA S.A." oninput="updatePreview()" required>
             </div>
+
+            <div class="campo">
+                <label>Tratamiento Estudiante:</label>
+                <select id="generoEstudiante" onchange="updatePreview()">
+                    <option value="M">El estudiante</option>
+                    <option value="F">La estudiante</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Estudiante (Escribe para buscar):</label>
+                <input type="text" id="estudiante" list="listaEstudiantes" placeholder="Busca un estudiante..." oninput="checkStudentMatch()" required>
+                <datalist id="listaEstudiantes"></datalist>
+            </div>
+
+            <div class="campo">
+                <label>ID para CITE (Automático):</label>
+                <input type="text" id="criterioCite" placeholder="Se llenará al elegir estudiante" oninput="updatePreview()" required>
+            </div>
+
             <div class="campo">
                 <label>Mención:</label>
                 <select id="mencion" onchange="updatePreview()">
@@ -139,118 +67,89 @@
                     <option value="e-Commerce">e-Commerce</option>
                 </select>
             </div>
+
             <div class="campo">
-                <label>Fecha:</label>
-                <input type="date" id="fecha" oninput="updatePreview()" required>
+                <label>Información Personal 1:</label>
+                <textarea id="info1" placeholder="Explique por qué le apasiona esta área" oninput="updatePreview()" required></textarea>
             </div>
-            <button type="submit" id="btnEnviar">🚀 Generar y Guardar</button>
+
+            <div class="campo">
+                <label>Informacion Personal 2 (Logros):</label>
+                <textarea id="info2" placeholder="Mencione sus principales logros..." oninput="updatePreview()" required></textarea>
+            </div>
+
+            <div class="campo">
+                <label>Informacion Personal 3 (Extracurricular):</label>
+                <textarea id="info3" placeholder="Participación en eventos..." oninput="updatePreview()" required></textarea>
+            </div>
+
+            <button type="submit" id="btnEnviar">Generar y Guardar en Drive</button>
         </form>
     </div>
-
+        
     <div class="preview-container" id="cartaVisual">
         <div class="carta-header">
-            CITE: <span class="placeholder-text" id="view-cite">---</span><br>
-            Fecha: <span class="placeholder-text" id="view-fecha">__ de __________ de 202X</span>
+            <span class="placeholder-text" id="view-cite">UPFT-FI-FCEE-PP-N° 001-I-2026</span><br>
+            La Paz, <span class="placeholder-text" id="view-fecha">__ de __________ de 202X</span> 
         </div>
 
         <div class="carta-body">
             <p>
                 <span id="view-tratamiento">Señor</span>:<br>
-                <strong id="view-destinatario">DESTINATARIO</strong><br>
-                <span id="view-cargo">CARGO</span><br>
-                <span id="view-empresa">EMPRESA PRESENTADA</span><br>
+                <span id="view-destinatario">DESTINATARIO</span><br>
+                <strong id="view-cargo">CARGO</strong><br>
+                <strong id="view-empresa">EMPRESA PRESENTADA</strong><br>
                 Presente.-
             </p>
 
-            <p><strong>Ref: Aceptación de Prácticas Profesionales</strong></p>
+            <p style="text-align: right;"><strong>Ref.: <u>Presentación y recomendación para la postulación <span class="view-genero-del">del </span>estudiante 
+                <span class="view-estudiante">NOMBRE DEL ESTUDIANTE</span></u>
+            </strong></p>
 
             <p>De mi mayor consideración:</p>
 
             <p>
-                A través de la presente, tengo el agrado de dirigirme a su persona para informar que el estudiante 
-                <span class="placeholder-text" id="view-estudiante">NOMBRE DEL ESTUDIANTE</span> ha sido asignado para realizar 
-                sus actividades académicas bajo la mención de <span class="placeholder-text" id="view-mencion">MENCIÓN</span>.
+                A tiempo de saludarle muy cordialmente en nombre de la Carrera de Ingeniería Comercial
+                de la Universidad Privada Franz Tamayo - UNIFRANZ, me es grato presentar y recomendar la
+                postulación <span class="view-genero-del">del </span>estudiante <span class="view-estudiante">NOMBRE DEL ESTUDIANTE</span>, 
+                quien cursa el último semestre de la carrera.
             </p>
 
             <p>
-                Sin otro particular, y agradeciendo de antemano la atención prestada, me despido con las consideraciones más distinguidas.
+                <span class="view-estudiante">NOMBRE DEL ESTUDIANTE</span>, ha optado por la mención de <span id="view-mencion">MENCIÓN</span>
+                y tiene planeado desarrollarse profesionalmente en esta área porque le apasiona <span id="view-info1" class="placeholder-text">el gran avance del área</span>.
+            </p>
+
+            <p>
+                Por otra parte, es importante destacar que <span class="view-estudiante">NOMBRE DEL ESTUDIANTE</span>, es 
+                <span id="view-genero-adjetivos">un estudiante </span><span id="view-info2" class="placeholder-text">activo y destacado...</span>.
+            </p>
+
+            <p>
+                Desde el inicio de su carrera,  <span class="view-estudiante">NOMBRE DEL ESTUDIANTE</span> <span id="view-info3" class="placeholder-text">ha sido miembro activo...</span>.
+            </p>
+
+            <p>
+                Sin duda alguna, <span class="view-estudiante">NOMBRE DEL ESTUDIANTE</span>, contribuirá con responsabilidad compromiso, al desarrollo 
+                de su institución, cumpliendo con los objetivos, desafíos y proyectos que le sean confiados.
+            </p>
+
+            <p>
+                Aprovecho la oportunidad para agradecer a su institución, por intermedio suyo, por abrir las
+                puertas a nuestros futuros profesionales y abrazar la causa de la transformación de la
+                Educación en Bolivia.<br><br> 
+                Atentamente.<br><br><br>
             </p>
         </div>
 
         <div class="firma">
-            Atentamente,<br><br><br>
-            __________________________<br>
-            <strong>Firma Responsable</strong>
+            ..............................................<br>
+            <strong>Ing. Eduardo Alejandro Soruco Zapata</strong><br>
+            <strong>Director de la carrera de Ingeniería Comercial</strong>
         </div>
     </div>
 </div>
 
-<script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzwCdctsdgzcDUGivxDr1vXPHkjDtGeP_YUekNi7noPptbMbsYdFLI-ZLFh_BtXO71G/exec";
-
-    // Función para actualizar la vista previa en tiempo real
-    function updatePreview() {
-        document.getElementById('view-estudiante').innerText = document.getElementById('estudiante').value || "NOMBRE DEL ESTUDIANTE";
-        document.getElementById('view-destinatario').innerText = document.getElementById('destinatario').value.toUpperCase() || "DESTINATARIO";
-        document.getElementById('view-cargo').innerText = document.getElementById('cargo').value.toUpperCase() || "CARGO";
-        document.getElementById('view-empresa').innerText = document.getElementById('empresa').value.toUpperCase() || "EMPRESA";
-        document.getElementById('view-tratamiento').innerText = document.getElementById('tratamiento').value;
-        document.getElementById('view-mencion').innerText = document.getElementById('mencion').value;
-        
-        const fecha = document.getElementById('fecha').value;
-        if(fecha) {
-            const partes = fecha.split("-");
-            document.getElementById('view-fecha').innerText = `${partes[2]}-${partes[1]}-${partes[0]}`;
-        }
-    }
-
-    document.getElementById('formCarta').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btnEnviar');
-        const msg = document.getElementById('mensaje');
-        
-        btn.disabled = true;
-        btn.innerText = "⏳ Generando documento...";
-
-        const datos = {
-            estudiante: document.getElementById('estudiante').value,
-            criterioCite: document.getElementById('criterioCite').value,
-            destinatario: document.getElementById('destinatario').value,
-            cargo: document.getElementById('cargo').value,
-            empresa: document.getElementById('empresa').value,
-            mencion: document.getElementById('mencion').value,
-            fecha: document.getElementById('fecha').value,
-            tratamiento: document.getElementById('tratamiento').value
-        };
-
-        try {
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datos)
-            });
-
-            msg.style.display = "block";
-            msg.style.backgroundColor = "#27ae60";
-            msg.innerText = "✅ ¡Éxito! Carta enviada a Google Drive.";
-            
-            setTimeout(() => {
-                msg.style.display = "none";
-                btn.disabled = false;
-                btn.innerText = "🚀 Generar y Guardar";
-                document.getElementById('formCarta').reset();
-                updatePreview();
-            }, 3000);
-
-        } catch (error) {
-            msg.style.display = "block";
-            msg.style.backgroundColor = "#e74c3c";
-            msg.innerText = "❌ Error de conexión.";
-            btn.disabled = false;
-        }
-    });
-</script>
-
+<script src="app.js" defer></script>
 </body>
 </html>
