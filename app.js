@@ -79,7 +79,7 @@ function updatePreview() {
     document.getElementById('view-mencion').innerText = document.getElementById('mencion').value;
     document.getElementById('view-cite').innerText = document.getElementById('criterioCite').value || "UPFT-FI-FCEE-PP-N° 001-I-2026";
     
-    const i1 = document.getElementById('info1').value || "el gran avance del área";
+    const i1 = document.getElementById('info1').value || "ve el area en crecimiento";
     document.getElementById('view-info1').innerHTML = i1.replace(/\n/g, '<br>');
 
     const i2 = document.getElementById('info2').value || "activo y destacado, quien, en el quinto semestre de estudios, participó del programa de intercambio estudiantil, cursando así asignaturas de la Carrera de ………en la Universidad de Boyacá, Colombia.";
